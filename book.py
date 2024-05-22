@@ -62,4 +62,3 @@ while choice != 6:
         continue
     else:
             break
-

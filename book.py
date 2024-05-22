@@ -33,3 +33,33 @@ class Trie:
         for child in node.children.values():
             result.extend(self._get_books_from_node(child))
         return result
+print("welcome ti book recoomendation system")
+choice = 0
+while choice != 6:
+    print("Options:")
+    print("1. Add Book")
+    print("2. View Books")
+    print("3. Rate Book")
+    print("4. Get Recommendations")
+    print("5. Search Books")
+    print("6. Exit")
+    choice = input("Choose an option: ")
+        
+    if choice == '1':
+        title = input("Enter book title: ")
+        author = input("Enter book author: ")
+        genre = input("Enter book genre: ")
+    elif choice == '2':
+        continue
+    elif choice == '3':
+            username = input("Enter your username: ")
+            continue
+    elif choice == '4':
+            username = input("Enter your username: ")
+            continue
+    elif choice == '5':
+        prefix = input("Enter book title prefix: ")
+        continue
+    else:
+            break
+

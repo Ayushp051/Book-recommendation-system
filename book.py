@@ -1,4 +1,6 @@
 #trie data strucutre
+import json
+
 class TrieNode:
     def __init__(self):
         self.children = {}
@@ -33,10 +35,78 @@ class Trie:
         for child in node.children.values():
             result.extend(self._get_books_from_node(child))
         return result
-print("welcome ti book recoomendation system")
+    
+
+class BookSystem:
+    def __init__(self):
+        self.books = []
+        self.ratings = {}
+        self.trie = Trie()
+        self.load_data()
+    
+    def load_data(self):
+        try:
+            with open('books.json', 'r') as file:
+                data = json.load(file)
+                self.books = data['books']
+                self.ratings = data['ratings']
+                for book in self.books:
+                    self.trie.insert(book['title'], book)
+        except FileNotFoundError:
+            self.books = []
+            self.ratings = {}
+
+    def save_data(self):
+        data = {
+            'books': self.books,
+            'ratings': self.ratings
+        }
+        with open('books.json', 'w') as file:
+            json.dump(data, file)
+    
+    def add_book(self, title, author, genre):
+        book = {'title': title, 'author': author, 'genre': genre}
+        self.books.append(book)
+        self.trie.insert(title, book)
+        self.save_data()
+
+    def view_books(self):
+        for index, book in enumerate(self.books, start=1):
+            print(f"{index}. Title: {book['title']}, Author: {book['author']}, Genre: {book['genre']}")
+    
+    def rate_book(self, username, title, rating):
+        if username not in self.ratings:
+            self.ratings[username] = {}
+        self.ratings[username][title] = rating
+        self.save_data()
+    
+    def search_books(self, prefix):
+        results = self.trie.search(prefix)
+        for book in results:
+            print(f"Title: {book['title']}, Author: {book['author']}, Genre: {book['genre']}")
+    
+    def get_recommendations(self, username):
+        if username not in self.ratings:
+            print("No ratings found for user.")                                                             
+            return
+        
+        user_ratings = self.ratings[username]
+        if not user_ratings:
+            print("No ratings found for user.")
+            return
+        
+        max_rated_book = max(user_ratings, key=user_ratings.get)
+        genre = next(book['genre'] for book in self.books if book['title'] == max_rated_book)
+
+        recommendations = [book for book in self.books if book['genre'] == genre and book['title'] != max_rated_book]
+        for book in recommendations:
+            print(f"Title: {book['title']}, Author: {book['author']}, Genre: {book['genre']}")
+
+
+book_system = BookSystem()
 choice = 0
-while choice != 6:
-    print("Options:")
+while choice!= 6:
+    print("\nOptions:")
     print("1. Add Book")
     print("2. View Books")
     print("3. Rate Book")
@@ -49,16 +119,20 @@ while choice != 6:
         title = input("Enter book title: ")
         author = input("Enter book author: ")
         genre = input("Enter book genre: ")
+        book_system.add_book(title, author, genre)
     elif choice == '2':
-        continue
+        book_system.view_books()
     elif choice == '3':
-            username = input("Enter your username: ")
-            continue
+        username = input("Enter your username: ")
+        book_system.view_books()
+        book_index = int(input("Enter the number of the book you want to rate: ")) - 1
+        rating = int(input(f"Enter your rating for {book_system.books[book_index]['title']} (1-5): "))
+        book_system.rate_book(username, book_system.books[book_index]['title'], rating)
     elif choice == '4':
-            username = input("Enter your username: ")
-            continue
+        username = input("Enter your username: ")
+        book_system.get_recommendations(username)
     elif choice == '5':
         prefix = input("Enter book title prefix: ")
-        continue
+        book_system.search_books(prefix)
     else:
-            break
+        break
